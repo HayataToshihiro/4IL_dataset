@@ -1,0 +1,20 @@
+   
+<launch>
+
+    <param name="use_sim_time" value="true"/>
+	<node pkg="tf" type="static_transform_publisher" name="baselink2velodyne"/> 
+
+	<!-- rviz -->
+	<!-- <node pkg="rviz" type="rviz" name="rviz"/> -->
+	<node pkg="rviz" type="rviz" name="rviz" args="-d /home/amsl/.rviz/tsukuba2018.rviz"/>
+
+	<!-- velodyne -->
+    <include file="$(find velodyne_height_map)/launch/amsl_velodyne_heightmap.launch" />
+    <include file="$(find velodyne_pointcloud)/launch/32e_points.launch" />
+	
+	
+	
+	
+	<!-- rosbag play -->
+	<node pkg="rosbag" type="play" name="play" args="--clock /home/amsl/bagfiles/2018-09-15-16-11-46.bag -l" />
+</launch>
