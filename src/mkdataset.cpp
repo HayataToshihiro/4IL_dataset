@@ -54,6 +54,8 @@ class mkdataset{
 		void ExtractPCInRange(pcl::PointCloud<pcl::PointXYZI>::Ptr pc);
 		void InputGrid(void);
 		int MeterpointToIndex(double x, double y);
+		int MeterpointToPixel_x(double x);
+		int MeterpointToPixel_y(double y);
 		void Publication(void);
 };
 
@@ -134,18 +136,31 @@ void mkdataset::ExtractPCInRange(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)/*{{{*/
 void mkdataset::InputGrid(void)
 {
 	grid = grid_all_minusone;
+	
+	cv::MatIterator_<cv::Vec3b> itd = image.begin<cv::Vec3b>(),itd_end = image.end<cv::Vec3b>();
+	
 	//ground
 	for(size_t i=0;i<ground->points.size();i++){
 		grid.data[MeterpointToIndex(ground->points[i].x, ground->points[i].y)] = 0;
+		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(ground->points[i].x));
+		src[MeterpointToPixel_x(ground->points[i].y)][0]=0;
+		src[MeterpointToPixel_x(ground->points[i].y)][1]=0;
+		src[MeterpointToPixel_x(ground->points[i].y)][2]=0;
 	}
+	
 	//obstacle
 	for(size_t i=0;i<rmground->points.size();i++){
 		grid.data[MeterpointToIndex(rmground->points[i].x, rmground->points[i].y)] = 100;
+		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(ground->points[i].x));
+		src[MeterpointToPixel_x(ground->points[i].y)][0]=255;
 	}
 	//human
-	for(size_t i=0;i<rmground->points.size();i++){
+	for(size_t i=0;i<human->points.size();i++){
 		grid.data[MeterpointToIndex(rmground->points[i].x, rmground->points[i].y)] = 100;
+		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(ground->points[i].x));
+		src[MeterpointToPixel_x(ground->points[i].y)][1]=255;
 	}
+	
 }
 
 int mkdataset::MeterpointToIndex(double x, double y)
@@ -156,6 +171,16 @@ int mkdataset::MeterpointToIndex(double x, double y)
 	return index;
 }
 
+int mkdataset::MeterpointToPixel_x(double x)
+{
+	int x_ = -x/grid.info.resolution + grid.info.width/2.0;
+	return x_;
+}
+int mkdataset::MeterpointToPixel_y(double y)
+{
+	int y_ = -y/grid.info.resolution + grid.info.height/2.0;
+	return y_;
+}
 void mkdataset::Publication(void)
 {
 	grid.header.frame_id = pub_frameid;
