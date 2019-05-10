@@ -1,8 +1,8 @@
 # 4IL_dataset
 
 # Dependances
-- depthimage_creater(https://github.com/Sadaku1993/depthimage_creater)
-- amsl_recog_msgs(https://github.com/Sadaku1993/amsl_recog_msg://github.com/Sadaku1993/amsl_recog_msgs)
+- [depthimage_creater](https://github.com/Sadaku1993/depthimage_creater)
+- [amsl_recog_msgs](https://github.com/Sadaku1993/amsl_recog_msg://github.com/Sadaku1993/amsl_recog_msgs)
 
 ## Published topics
 - /image (sensor_msgs/Image)
