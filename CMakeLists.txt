@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   image_transport
   pcl_ros
+  amsl_recog_msgs
+  jsk_recognition_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -207,3 +209,7 @@ include_directories(
 # catkin_add_nosetests(test)
 add_executable(mkdataset src/mkdataset.cpp)
 target_link_libraries(mkdataset ${catkin_LIBRARIES})
+add_executable(clustering_4IL src/clustering_4IL.cpp)
+target_link_libraries(clustering_4IL ${catkin_LIBRARIES})
+add_executable(pickup_cluster_4IL src/pickup_cluster_4IL.cpp)
+target_link_libraries(pickup_cluster_4IL ${catkin_LIBRARIES})

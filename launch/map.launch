@@ -14,10 +14,10 @@
     <include file="$(find velodyne_pointcloud)/launch/32e_points.launch" />
 	
 	<!-- clustering	 -->
-    <node pkg="depthimage_creater" type="euclidean_clustering" name="euclidean_clustering">
+    <node pkg="4IL_dataset" type="clustering_4IL" name="euclidean_clustering">
         <remap from="/cloud"    to="/velodyne_obstacles"/>
     </node>
-	<node pkg="depthimage_creater" type="pickup_cluster" name="pickup_cluster"/>
+	<node pkg="4IL_dataset" type="pickup_cluster_4IL" name="pickup_cluster"/>
 
 
     <node pkg="4IL_dataset" type="mkdataset" name="mkdataset">

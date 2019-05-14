@@ -1,7 +1,7 @@
 # 4IL_dataset
 
 # Dependances
-- [depthimage_creater](https://github.com/Sadaku1993/depthimage_creater)
+- [jsk_recognition](https://github.com/jsk-ros-pkg/jsk_recognition)
 - [amsl_recog_msgs](https://github.com/Sadaku1993/amsl_recog_msg://github.com/Sadaku1993/amsl_recog_msgs)
 
 ## Published topics
