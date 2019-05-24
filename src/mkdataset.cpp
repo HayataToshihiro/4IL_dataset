@@ -33,8 +33,6 @@ class mkdataset{
 		/*grid*/
 		nav_msgs::OccupancyGrid grid;
 		nav_msgs::OccupancyGrid grid_all_minusone;
-		/*image*/
-		sensor_msgs::Image image_ros;
 		/*publish infomations*/
 		std::string pub_frameid;
 		ros::Time pub_stamp;
@@ -44,7 +42,12 @@ class mkdataset{
 		const double resolution = 0.1;	//[m]
 		const int image_w = int(w/resolution);
 		const int image_h = int(h/resolution);
-		cv::Mat image = cv::Mat::zeros(cv::Size(image_w, image_h), CV_8UC3); 
+		/* flags */
+		bool firstcallback_rmg = true;
+		bool firstcallback_gnd = true;
+		bool firstcallback_hum = true;
+		/*image*/
+		sensor_msgs::ImagePtr image_ros;
 	public:
 		mkdataset();
 		void Initialization(void);
@@ -72,6 +75,7 @@ mkdataset::mkdataset()
 
 void mkdataset::Initialization(void)/*{{{*/
 {
+	// std::cout<<"initialization"<<std::endl;
 	grid.info.resolution = resolution;
 	grid.info.width = w/resolution + 1;
 	grid.info.height = h/resolution + 1;
@@ -90,6 +94,8 @@ void mkdataset::Initialization(void)/*{{{*/
 
 void mkdataset::CallbackRmGround(const sensor_msgs::PointCloud2ConstPtr &msg)/*{{{*/
 {
+	// std::cout<<"callbackrmground"<<std::endl;
+	firstcallback_rmg = false;
 	pcl::fromROSMsg(*msg, *rmground);
 
 	ExtractPCInRange(rmground);
@@ -103,6 +109,8 @@ void mkdataset::CallbackRmGround(const sensor_msgs::PointCloud2ConstPtr &msg)/*{
 
 void mkdataset::CallbackGround(const sensor_msgs::PointCloud2ConstPtr &msg)/*{{{*/
 {
+	// std::cout<<"callbacground"<<std::endl;
+	firstcallback_gnd = false;
 	pcl::PointCloud<pcl::PointXYZI>::Ptr tmp_pc {new pcl::PointCloud<pcl::PointXYZI>};
 	pcl::fromROSMsg(*msg, *tmp_pc);
 	
@@ -113,6 +121,8 @@ void mkdataset::CallbackGround(const sensor_msgs::PointCloud2ConstPtr &msg)/*{{{
 
 void mkdataset::CallbackHuman(const sensor_msgs::PointCloud2ConstPtr &msg)/*{{{*/
 {
+	// std::cout<<"callbackhuman"<<std::endl;
+	firstcallback_hum = false;
 	pcl::PointCloud<pcl::PointXYZI>::Ptr tmp_pc {new pcl::PointCloud<pcl::PointXYZI>};
 	pcl::fromROSMsg(*msg, *tmp_pc);
 	
@@ -122,6 +132,7 @@ void mkdataset::CallbackHuman(const sensor_msgs::PointCloud2ConstPtr &msg)/*{{{*
 }/*}}}*/
 void mkdataset::ExtractPCInRange(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)/*{{{*/
 {
+	// std::cout<<"extractpcinrange"<<std::endl;
 	pcl::PassThrough<pcl::PointXYZI> pass;
 	pass.setInputCloud(pc);
 	pass.setFilterFieldName("x");
@@ -135,32 +146,50 @@ void mkdataset::ExtractPCInRange(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)/*{{{*/
 
 void mkdataset::InputGrid(void)
 {
+	std::cout<<"imputgrid"<<std::endl;
 	grid = grid_all_minusone;
-	
-	cv::MatIterator_<cv::Vec3b> itd = image.begin<cv::Vec3b>(),itd_end = image.end<cv::Vec3b>();
-	
+	cv::Mat image(cv::Size(image_w,image_h), CV_8UC3, cv::Scalar(0,0,0));
+
+
 	//ground
-	for(size_t i=0;i<ground->points.size();i++){
-		grid.data[MeterpointToIndex(ground->points[i].x, ground->points[i].y)] = 0;
-		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(ground->points[i].x));
-		src[MeterpointToPixel_x(ground->points[i].y)][0]=0;
-		src[MeterpointToPixel_x(ground->points[i].y)][1]=0;
-		src[MeterpointToPixel_x(ground->points[i].y)][2]=0;
-	}
-	
+	// std::cout<<ground->points.size()<<std::endl;
+ 	// if(ground->points.size()){
+	// 	for(size_t i=0;i<ground->points.size();i++){
+	// 		grid.data[MeterpointToIndex(ground->points[i].x, ground->points[i].y)] = 0;
+	// 		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(ground->points[i].x));
+	// 		src[MeterpointToPixel_x(ground->points[i].y)][0]=0;
+	// 		src[MeterpointToPixel_x(ground->points[i].y)][1]=0;
+	// 		src[MeterpointToPixel_x(ground->points[i].y)][2]=0;
+	// 	}
+	// }
+
 	//obstacle
-	for(size_t i=0;i<rmground->points.size();i++){
-		grid.data[MeterpointToIndex(rmground->points[i].x, rmground->points[i].y)] = 100;
-		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(ground->points[i].x));
-		src[MeterpointToPixel_x(ground->points[i].y)][0]=255;
+	std::cout<<rmground->points.size()<<std::endl;
+	if(rmground->points.size()){
+		for(size_t i=0;i<rmground->points.size();i++){
+			// grid.data[MeterpointToIndex(rmground->points[i].x, rmground->points[i].y)] = 100;
+			
+			int px_x = MeterpointToPixel_x(rmground->points[i].y);
+			int px_y = MeterpointToPixel_y(rmground->points[i].x);
+			cv::Vec3b *src = image.ptr<cv::Vec3b>(px_y);
+			src[px_x][0] = 255;
+			// image.at<cv::Vec3d>(px_y, px_x)[0] = 255;
+		}
 	}
 	//human
-	for(size_t i=0;i<human->points.size();i++){
-		grid.data[MeterpointToIndex(rmground->points[i].x, rmground->points[i].y)] = 100;
-		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(ground->points[i].x));
-		src[MeterpointToPixel_x(ground->points[i].y)][1]=255;
-	}
-	
+	// std::cout<<human->points.size()<<std::endl;
+	// if(human->points.size()){
+	// 	for(size_t i=0;i<human->points.size();i++){
+	// 		grid.data[MeterpointToIndex(human->points[i].x, human->points[i].y)] = 100;
+	// 		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(human->points[i].x));
+	// 		src[MeterpointToPixel_x(human->points[i].y)][1]=255;
+	// 	}
+	// }
+		std::cout<<"333333333"<<std::endl;
+		std::cout<<image.size()<<std::endl;
+		std::cout<<image.channels()<<std::endl;
+	image_ros = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
+		std::cout<<"444444444"<<std::endl;
 }
 
 int mkdataset::MeterpointToIndex(double x, double y)
@@ -173,22 +202,22 @@ int mkdataset::MeterpointToIndex(double x, double y)
 
 int mkdataset::MeterpointToPixel_x(double x)
 {
-	int x_ = -x/grid.info.resolution + grid.info.width/2.0;
+	int x_ = -x/resolution + grid.info.width/2.0;
 	return x_;
 }
 int mkdataset::MeterpointToPixel_y(double y)
 {
-	int y_ = -y/grid.info.resolution + grid.info.height/2.0;
+	int y_ = -y/resolution + grid.info.height/2.0;
 	return y_;
 }
 void mkdataset::Publication(void)
 {
 	grid.header.frame_id = pub_frameid;
 	grid.header.stamp = pub_stamp;
-	grid.header.frame_id = pub_frameid;
-	grid.header.stamp = pub_stamp;
+	image_ros->header.frame_id = pub_frameid;
+	image_ros->header.stamp = pub_stamp;
 	pub_grid.publish(grid);
-	pub_image.publish(grid);
+	pub_image.publish(image_ros);
 
 }
 
