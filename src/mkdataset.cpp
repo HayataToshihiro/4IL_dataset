@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <cstdlib> 
 
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -164,16 +165,22 @@ void mkdataset::InputGrid(void)
 	// }
 
 	//obstacle
-	std::cout<<rmground->points.size()<<std::endl;
+	// std::cout<<rmground->points.size()<<std::endl;
 	if(rmground->points.size()){
 		for(size_t i=0;i<rmground->points.size();i++){
 			// grid.data[MeterpointToIndex(rmground->points[i].x, rmground->points[i].y)] = 100;
 			
 			int px_x = MeterpointToPixel_x(rmground->points[i].y);
 			int px_y = MeterpointToPixel_y(rmground->points[i].x);
+			if(px_x>=200||px_y>=200){
+				std::cout << "px_x = " << px_x << std::endl;
+				std::cout << "px_y = " << px_y << std::endl;
+			}
 			cv::Vec3b *src = image.ptr<cv::Vec3b>(px_y);
 			src[px_x][0] = 255;
+			// src[0][0] = 255;
 			// image.at<cv::Vec3d>(px_y, px_x)[0] = 255;
+
 		}
 	}
 	//human
@@ -185,11 +192,11 @@ void mkdataset::InputGrid(void)
 	// 		src[MeterpointToPixel_x(human->points[i].y)][1]=255;
 	// 	}
 	// }
-		std::cout<<"333333333"<<std::endl;
-		std::cout<<image.size()<<std::endl;
-		std::cout<<image.channels()<<std::endl;
+		// std::cout<<"333333333"<<std::endl;
+		// std::cout<<image.size()<<std::endl;
+		// std::cout<<image.channels()<<std::endl;
 	image_ros = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
-		std::cout<<"444444444"<<std::endl;
+		// std::cout<<"444444444"<<std::endl;
 }
 
 int mkdataset::MeterpointToIndex(double x, double y)
@@ -202,12 +209,12 @@ int mkdataset::MeterpointToIndex(double x, double y)
 
 int mkdataset::MeterpointToPixel_x(double x)
 {
-	int x_ = -x/resolution + grid.info.width/2.0;
+	int x_ = -x/resolution + grid.info.width/2.0 - 0.5;
 	return x_;
 }
 int mkdataset::MeterpointToPixel_y(double y)
 {
-	int y_ = -y/resolution + grid.info.height/2.0;
+	int y_ = -y/resolution + grid.info.height/2.0 - 0.5;
 	return y_;
 }
 void mkdataset::Publication(void)
