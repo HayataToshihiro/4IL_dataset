@@ -147,13 +147,12 @@ void mkdataset::ExtractPCInRange(pcl::PointCloud<pcl::PointXYZI>::Ptr pc)/*{{{*/
 
 void mkdataset::InputGrid(void)
 {
-	std::cout<<"imputgrid"<<std::endl;
+	// std::cout<<"imputgrid"<<std::endl;
 	grid = grid_all_minusone;
 	cv::Mat image(cv::Size(image_w,image_h), CV_8UC3, cv::Scalar(0,0,0));
 
 
 	//ground
-	// std::cout<<ground->points.size()<<std::endl;
  	// if(ground->points.size()){
 	// 	for(size_t i=0;i<ground->points.size();i++){
 	// 		grid.data[MeterpointToIndex(ground->points[i].x, ground->points[i].y)] = 0;
@@ -165,38 +164,29 @@ void mkdataset::InputGrid(void)
 	// }
 
 	//obstacle
-	// std::cout<<rmground->points.size()<<std::endl;
 	if(rmground->points.size()){
 		for(size_t i=0;i<rmground->points.size();i++){
 			// grid.data[MeterpointToIndex(rmground->points[i].x, rmground->points[i].y)] = 100;
 			
 			int px_x = MeterpointToPixel_x(rmground->points[i].y);
 			int px_y = MeterpointToPixel_y(rmground->points[i].x);
-			if(px_x>=200||px_y>=200){
-				std::cout << "px_x = " << px_x << std::endl;
-				std::cout << "px_y = " << px_y << std::endl;
-			}
+			// if(px_x>=200||px_y>=200){
+			// 	std::cout << "px_x = " << px_x << std::endl;
+			// 	std::cout << "px_y = " << px_y << std::endl;
+			// }
 			cv::Vec3b *src = image.ptr<cv::Vec3b>(px_y);
 			src[px_x][0] = 255;
-			// src[0][0] = 255;
-			// image.at<cv::Vec3d>(px_y, px_x)[0] = 255;
-
 		}
 	}
-	//human
-	// std::cout<<human->points.size()<<std::endl;
-	// if(human->points.size()){
-	// 	for(size_t i=0;i<human->points.size();i++){
-	// 		grid.data[MeterpointToIndex(human->points[i].x, human->points[i].y)] = 100;
-	// 		cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(human->points[i].x));
-	// 		src[MeterpointToPixel_x(human->points[i].y)][1]=255;
-	// 	}
-	// }
-		// std::cout<<"333333333"<<std::endl;
-		// std::cout<<image.size()<<std::endl;
-		// std::cout<<image.channels()<<std::endl;
+	// human
+	if(human->points.size()){
+		for(size_t i=0;i<human->points.size();i++){
+			grid.data[MeterpointToIndex(human->points[i].x, human->points[i].y)] = 100;
+			cv::Vec3b *src = image.ptr<cv::Vec3b>(MeterpointToPixel_y(human->points[i].x));
+			src[MeterpointToPixel_x(human->points[i].y)][2]=255;
+		}
+	}
 	image_ros = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
-		// std::cout<<"444444444"<<std::endl;
 }
 
 int mkdataset::MeterpointToIndex(double x, double y)

@@ -60,9 +60,9 @@ PickUp<T_p>::PickUp()
     nh.param<double>("max_width" , max_width,  1.5);//1.5
     nh.param<double>("max_height", max_height, 1.9);//2.0
     nh.param<double>("max_depth",  max_depth,  1.5);//1.5
-    nh.param<double>("min_width" , min_width,  0.25);//0.15
-    nh.param<double>("min_height", min_height, 1.2);//0.8
-    nh.param<double>("min_depth",  min_depth,  0.25);//0.15
+    nh.param<double>("min_width" , min_width,  0.2);//0.15
+    nh.param<double>("min_height", min_height, 1.0);//0.8
+    nh.param<double>("min_depth",  min_depth,  0.2);//0.15
 }
 
 template<typename T_p>

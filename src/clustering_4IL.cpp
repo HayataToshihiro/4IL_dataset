@@ -115,7 +115,7 @@ void clustering(T_ptr cloud_in, vector<Clusters<T_c> >& cluster_array)
     pcl::VoxelGrid<T_p> vg;
     T_ptr ds_cloud (new T_c);
     vg.setInputCloud (cloud_in);  
-    vg.setLeafSize (0.09f, 0.09f, 0.09f);
+    vg.setLeafSize (0.08f, 0.08f, 0.08f);
     vg.filter (*ds_cloud);
 
     //downsampled point's z =>0
@@ -131,8 +131,8 @@ void clustering(T_ptr cloud_in, vector<Clusters<T_c> >& cluster_array)
     tree->setInputCloud (ds_cloud);
     std::vector<pcl::PointIndices> cluster_indices;
     pcl::EuclideanClusterExtraction<T_p> ec;
-    ec.setClusterTolerance (0.12); // 15cm
-    ec.setMinClusterSize (100);//50
+    ec.setClusterTolerance (0.20); // 15cm
+    ec.setMinClusterSize (50);//50
     ec.setMaxClusterSize (1200);//1600
     ec.setSearchMethod (tree);
     ec.setInputCloud(ds_cloud);

@@ -10,8 +10,16 @@
 	<node pkg="rviz" type="rviz" name="rviz" args="-d /home/amsl/.rviz/4dataset.rviz"/>
 
 	<!-- velodyne -->
+	<include file="$(find perfect_velodyne)/launch/nomal_estimation.launch" />
     <include file="$(find velodyne_pointcloud)/launch/32e_points.launch" />
-	<include file="$(find velodyne_height_map)/launch/amsl_velodyne_heightmap.launch" />
+	<!-- <node pkg="nodelet" type="nodelet" name="heightmap_nodelet" -->
+    <!--     args="load velodyne_height_map/HeightMapNodelet velodyne_nodelet_manager"> -->
+	<!-- 	<param name="velodyne_points" value="perfect_velodyne/nomal"/> -->
+	<!-- 	<param name="cell_size" value="0.5"/> -->
+	<!-- 	<param name="full_clouds" value="true"/> -->
+	<!-- 	<param name="grid_dimensions" value="50"/> -->
+	<!-- 	<param name="height_threshold" value="0.1"/> -->
+	<!-- </node> -->
 
 	<!-- clustering	 -->
     <node pkg="for_IL_dataset" type="clustering_4IL" name="euclidean_clustering">
