@@ -2,7 +2,7 @@
 
 # Dependances
 - [jsk_recognition](https://github.com/jsk-ros-pkg/jsk_recognition)
-- [amsl_recog_msgs](https://github.com/Sadaku1993/amsl_recog_msg://github.com/Sadaku1993/amsl_recog_msgs)
+- [amsl_recog_msgs](https://github.com/Sadaku1993/amsl_recog_msgs)
 
 ## Published topics
 - /image (sensor_msgs/Image)
